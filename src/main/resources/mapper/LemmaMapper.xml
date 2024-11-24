@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.antares.kg.mapper.LemmaMapper">
+
+    <resultMap id="BaseResultMap" type="com.antares.kg.model.entity.Lemma">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="taskId" column="task_id" jdbcType="BIGINT"/>
+            <result property="depth" column="depth" jdbcType="INTEGER"/>
+            <result property="url" column="url" jdbcType="VARCHAR"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="content" column="content" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="TINYINT"/>
+            <result property="log" column="log" jdbcType="VARCHAR"/>
+            <result property="score" column="score" jdbcType="INTEGER"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+            <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,task_id,depth,
+        url,name,title,
+        content,status,log,
+        score,create_time,update_time,
+        is_delete
+    </sql>
+
+    <select id="getNextLemma" resultType="com.antares.kg.model.entity.Lemma">
+        SELECT *
+        FROM `lemma`
+        WHERE `task_id` = #{taskId}
+          AND `status` = 0
+        ORDER BY `depth`, `create_time`
+            LIMIT 1;
+    </select>
+</mapper>
