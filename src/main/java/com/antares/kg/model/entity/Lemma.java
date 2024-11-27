@@ -47,6 +47,11 @@ public class Lemma implements Serializable {
     private String title;
 
     /**
+     * 词条和主题的相关性分数
+     */
+    private Integer score;
+
+    /**
      * 词条内容txt保存路径
      */
     private String content;
@@ -60,11 +65,6 @@ public class Lemma implements Serializable {
      * 爬取日志，用于记录爬取失败时的信息
      */
     private String log;
-
-    /**
-     * 词条和主题的相关性分数
-     */
-    private Integer score;
 
     /**
      * 创建时间

@@ -1,30 +1,35 @@
 package com.antares.kg.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ReUtil;
-import com.antares.kg.constant.CrawlerConstants;
+import com.antares.kg.mapper.LemmaLinkMapper;
 import com.antares.kg.mapper.LemmaMapper;
 import com.antares.kg.model.dto.crawl.CrawlRes;
 import com.antares.kg.model.dto.crawl.CrawlTaskAddReq;
 import com.antares.kg.model.entity.CrawlTask;
 import com.antares.kg.model.entity.Lemma;
+import com.antares.kg.model.entity.LemmaLink;
 import com.antares.kg.model.enums.LemmaStatusEnum;
+import com.antares.kg.service.LemmaService;
 import com.antares.kg.strategy.CrawlStrategy;
 import com.antares.kg.strategy.CrawlStrategyFactory;
+import com.antares.kg.utils.MinioUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.antares.kg.service.CrawlTaskService;
 import com.antares.kg.mapper.CrawlTaskMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * @author Antares
@@ -38,7 +43,7 @@ public class CrawlTaskServiceImpl extends ServiceImpl<CrawlTaskMapper, CrawlTask
     @Resource
     private LemmaMapper lemmaMapper;
     @Resource
-    private CrawlStrategyFactory crawlStrategyFactory;
+    private LemmaService lemmaService;
 
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(4);
     private static final ConcurrentHashMap<Long, Future<?>> taskMap = new ConcurrentHashMap<>();
@@ -65,57 +70,42 @@ public class CrawlTaskServiceImpl extends ServiceImpl<CrawlTaskMapper, CrawlTask
         }
     }
 
+    @Override
+    public void restartCrawlTask(Long taskId) {
+        CrawlTask crawlTask = getById(taskId);
+        crawlTask.setLog(crawlTask.getLog() + "任务重新启动...\n");
+        Future<?> future = threadPool.submit(() -> startCrawlTask(crawlTask));
+        taskMap.put(crawlTask.getId(), future);
 
-    private void startCrawlTask(CrawlTask crawlTask) {
+        try {
+            Thread.sleep(6000000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void stopCrawlTask(Long taskId) {
+        Future<?> future = taskMap.remove(taskId);
+        if (future != null) {
+            CrawlTask crawlTask = getById(taskId);
+            crawlTask.setLog(crawlTask.getLog() + "任务被手动暂停...\n");
+            future.cancel(true);
+        }
+    }
+
+    public void startCrawlTask(CrawlTask crawlTask) {
         Long taskId = crawlTask.getId();
-        Lemma lemma;
+        Lemma nextLemma;
         do {
-            // 1. 查询下一个待爬词条
-            lemma = lemmaMapper.getNextLemma(taskId);
-            if (lemma != null) {
-                // 2. 使用特定的策略爬取词条
-                CrawlStrategy strategy = crawlStrategyFactory.getStrategy(crawlTask.getType());
-                CrawlRes crawlRes = strategy.crawl(lemma.getUrl(), crawlTask.getScoreThreshold());
-
-                // 3. 更新该词条的爬取状态
-                lemma.setStatus(LemmaStatusEnum.SUCCESS.getCode());
-                lemma.setTitle(crawlRes.getTitle());
-                lemma.setScore(crawlRes.getScore());
-
-
-                String path = String.format("baike/%d-%d-%s.txt", taskId, lemma.getId(), lemma.getTitle());
-                lemma.setContent(path);
-                FileUtil.writeUtf8String(crawlRes.getContent(), path);
-                log.info("词条保存路径: {}", path);
-                lemmaMapper.updateById(lemma);
-
-                Integer depth = lemma.getDepth();
-                // 4. 如果未达到指定的爬取深度，还需要添加待爬词条
-                if(depth < crawlTask.getMaxDepth()) {
-                    List<Lemma> pendingLemmas = crawlRes.getReferenceLinks().stream().map(link -> {
-                        String pattern = "/item/(.*?)/(\\d+)";
-                        String name = ReUtil.get(pattern, link, 0); // 提取第一个分组
-                        int id = Integer.parseInt(ReUtil.get(pattern, link, 1));   // 提取第二个分组
-                        if (id != 0) {
-                            Lemma pendingLemma = new Lemma();
-                            pendingLemma.setTaskId(taskId);
-                            pendingLemma.setName(name);
-                            pendingLemma.setDepth(depth + 1);
-                            pendingLemma.setUrl(CrawlerConstants.BAIKE_LINK_PREFIX + link);
-                            return pendingLemma;
-                        } else {
-                            return null;
-                        }
-                    }).filter(Objects::nonNull).toList();
-                    lemmaMapper.insert(pendingLemmas);
-                }
+            // 查询下一个待爬词条
+            nextLemma = lemmaMapper.getNextLemma(taskId);
+            if (nextLemma != null) {
+                lemmaService.crawlOneLemma(crawlTask, nextLemma);
             }
-        } while (lemma != null);
+        } while (nextLemma != null);
 
         taskMap.remove(taskId);
     }
 }
-
-
-
 

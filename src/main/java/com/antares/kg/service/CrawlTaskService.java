@@ -11,4 +11,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface CrawlTaskService extends IService<CrawlTask> {
     void addCrawlTask(CrawlTaskAddReq crawlTaskAddReq);
+
+    void stopCrawlTask(Long taskId);
+
+    void restartCrawlTask(Long taskId);
 }

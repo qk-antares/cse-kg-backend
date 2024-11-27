@@ -5,8 +5,11 @@ public interface CrawlerConstants {
     String PROMPT_PATH = "prompt/prompt.txt";
     String OLLAMA_MODEL = "mistral:10k";
 
+    String BAIKE_LINK_PATTERN = "/item/(.*?)/(\\d+)";
     String BAIKE_LINK_PREFIX = "https://baike.baidu.com";
+    String BAIKE_URL_PATTERN = "^https://baike\\.baidu\\.com/item/[^/]+/\\d+$";
     int BAIKE_LINK_SUFFIX_LENGTH = "?fromModule=lemma_inlink".length();
+    int BAIKE_TITLE_SUFFIX_LENGTH = "_百度百科".length();
 
     String BAIKE_MAIN_CONTENT_SELECTOR = "div[class^=contentTab_Wa7Hh]";
     String BAIKE_SUMMARY_SELECTOR = "div[class^=lemmaSummary_xoHAz J-summary]";

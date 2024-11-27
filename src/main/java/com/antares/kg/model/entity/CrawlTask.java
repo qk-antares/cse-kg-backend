@@ -47,16 +47,6 @@ public class CrawlTask implements Serializable {
     private Integer maxDepth;
 
     /**
-     * 当前爬取完成的深度
-     */
-    private Integer curDepth;
-
-    /**
-     * 已爬取词条数量
-     */
-    private Integer count;
-
-    /**
      * 任务状态，0是等待执行，1是正在执行，2是执行完成，3是执行失败
      */
     private Integer status;

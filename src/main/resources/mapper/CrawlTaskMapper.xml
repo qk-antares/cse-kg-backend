@@ -11,8 +11,6 @@
             <result property="type" column="type" jdbcType="VARCHAR"/>
             <result property="scoreThreshold" column="score_threshold" jdbcType="INTEGER"/>
             <result property="maxDepth" column="max_depth" jdbcType="INTEGER"/>
-            <result property="curDepth" column="cur_depth" jdbcType="INTEGER"/>
-            <result property="count" column="count" jdbcType="INTEGER"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
             <result property="log" column="log" jdbcType="VARCHAR"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -23,10 +21,7 @@
     <sql id="Base_Column_List">
         id,root_url,root_name,
         type,score_threshold,max_depth,
-        cur_depth,count,status,
-        log,create_time,update_time,
-        is_delete
+        status,log,create_time,
+        update_time,is_delete
     </sql>
-
-
 </mapper>

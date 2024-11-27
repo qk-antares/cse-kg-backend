@@ -18,4 +18,16 @@ public class CrawlController {
         crawlTaskService.addCrawlTask(crawlTaskAddReq);
         return R.ok();
     }
+
+    @PostMapping("/stop/{taskId}")
+    public R<Void> stopCrawlTask(@PathVariable("taskId") Long taskId) {
+        crawlTaskService.stopCrawlTask(taskId);
+        return R.ok();
+    }
+
+    @PostMapping("/restart/{taskId}")
+    public R<Void> restartCrawlTask(@PathVariable("taskId") Long taskId) {
+        crawlTaskService.restartCrawlTask(taskId);
+        return R.ok();
+    }
 }

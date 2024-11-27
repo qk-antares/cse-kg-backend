@@ -11,10 +11,10 @@
             <result property="url" column="url" jdbcType="VARCHAR"/>
             <result property="name" column="name" jdbcType="VARCHAR"/>
             <result property="title" column="title" jdbcType="VARCHAR"/>
+            <result property="score" column="score" jdbcType="INTEGER"/>
             <result property="content" column="content" jdbcType="VARCHAR"/>
             <result property="status" column="status" jdbcType="TINYINT"/>
             <result property="log" column="log" jdbcType="VARCHAR"/>
-            <result property="score" column="score" jdbcType="INTEGER"/>
             <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
             <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
             <result property="isDelete" column="is_delete" jdbcType="TINYINT"/>
@@ -23,8 +23,8 @@
     <sql id="Base_Column_List">
         id,task_id,depth,
         url,name,title,
-        content,status,log,
-        score,create_time,update_time,
+        score,content,status,
+        log,create_time,update_time,
         is_delete
     </sql>
 
@@ -32,8 +32,22 @@
         SELECT *
         FROM `lemma`
         WHERE `task_id` = #{taskId}
-          AND `status` = 0
+        AND `status` = 0
+        AND `depth` &lt;= (
+            SELECT `max_depth`
+            FROM `crawl_task`
+            WHERE `id` = #{taskId}
+        )
         ORDER BY `depth`, `create_time`
-            LIMIT 1;
+        LIMIT 1;
+    </select>
+
+    <select id="getCrawledLemma" resultType="com.antares.kg.model.entity.Lemma">
+        SELECT *
+        FROM `lemma`
+        WHERE `url` = #{url}
+          AND `status` != 0
+        ORDER BY `create_time`
+        LIMIT 1;
     </select>
 </mapper>

@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum LemmaStatusEnum {
     PENDING(0,"等待爬取"),
     SUCCESS(1, "爬取成功"),
-    ERROR(2, "爬取失败");
+    ERROR(2, "爬取失败"),
+    EXIT(3, "爬取退出");
 
     public final int code;
     public final String description;
