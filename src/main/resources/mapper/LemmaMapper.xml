@@ -41,13 +41,4 @@
         ORDER BY `depth`, `create_time`
         LIMIT 1;
     </select>
-
-    <select id="getCrawledLemma" resultType="com.antares.kg.model.entity.Lemma">
-        SELECT *
-        FROM `lemma`
-        WHERE `url` = #{url}
-          AND `status` != 0
-        ORDER BY `create_time`
-        LIMIT 1;
-    </select>
 </mapper>

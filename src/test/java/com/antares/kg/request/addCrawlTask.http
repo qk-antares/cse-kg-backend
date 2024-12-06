@@ -1,5 +1,10 @@
-### GET request to example server
-GET https://examples.http-client.intellij.net/get
-    ?generated-in=IntelliJ IDEA
+POST http://127.0.0.1:8010/api/crawl
+Content-Type: application/json
 
-###
+{
+  "rootUrl": "https://baike.baidu.com/item/%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%a7%91%e5%ad%a6/9132",
+  "rootName": "计算机科学",
+  "type": "baike",
+  "scoreThreshold": 6,
+  "maxDepth": 2
+}

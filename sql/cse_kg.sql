@@ -44,17 +44,12 @@ create table `lemma_link` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='词条关系表';
 
-# 下一个待爬取词条
-select max_depth from `crawl_task` where `id` = :taskId;
 
-SELECT *
-FROM `lemma`
-WHERE `task_id` = :taskId
-  AND `status` = 0
-  AND `depth` <= 3
-ORDER BY `depth`, `create_time`
-LIMIT 1;
 
+
+# 以下是开发中测试的SQL语句，不用执行
+
+# 重置三个表
 TRUNCATE TABLE `crawl_task`;
 TRUNCATE TABLE `lemma`;
 TRUNCATE TABLE `lemma_link`;
@@ -63,11 +58,29 @@ ALTER TABLE `crawl_task` AUTO_INCREMENT = 1;
 ALTER TABLE `lemma` AUTO_INCREMENT = 1;
 ALTER TABLE `lemma_link` AUTO_INCREMENT = 1;
 
-select count(*) from `lemma_link`;
+# 下一个待爬取词条
+SELECT *
+FROM `lemma`
+WHERE `task_id` = :taskId
+  AND `status` = 0
+  AND `depth` <= (
+      select `max_depth`
+      from `crawl_task`
+      where `id` = :taskId
+    )
+ORDER BY `depth`, `create_time`
+LIMIT 1;
 
-update lemma set status=0 where status=2;
+# 将爬取出错的词条重新设置为待爬
+update `lemma` set `status`=0 where `status`=2 and `task_id` = :taskId;
 
-select * from `lemma` where `url`='https://baike.baidu.com/item/Linux/27050';
+# 将爬取成功的log设置为null（这些词条一般是第一次爬取失败了，比如说被百度封IP了，但重置状态后爬取成功了）
+update `lemma` set `log`=null where `status`=3;
+update `lemma` set `log`=null where `status`=1 and `content` is not null;
 
-delete from lemma where task_id=7;
-delete from lemma_link where from_lemma_id>384
+# 删除无效的引用
+select * from `lemma_link`
+         where `from_lemma_id` not in (select `id` from `lemma`)
+            or `to_lemma_id` not in (select `id` from `lemma`);
+
+select * from lemma where score > 10;

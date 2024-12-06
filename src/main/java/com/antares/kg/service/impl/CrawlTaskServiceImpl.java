@@ -1,35 +1,25 @@
 package com.antares.kg.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.antares.kg.mapper.LemmaLinkMapper;
+import com.antares.kg.exception.BusinessException;
 import com.antares.kg.mapper.LemmaMapper;
-import com.antares.kg.model.dto.crawl.CrawlRes;
 import com.antares.kg.model.dto.crawl.CrawlTaskAddReq;
 import com.antares.kg.model.entity.CrawlTask;
 import com.antares.kg.model.entity.Lemma;
-import com.antares.kg.model.entity.LemmaLink;
-import com.antares.kg.model.enums.LemmaStatusEnum;
+import com.antares.kg.model.enums.CrawlTaskStatusEnum;
+import com.antares.kg.model.enums.HttpCodeEnum;
 import com.antares.kg.service.LemmaService;
-import com.antares.kg.strategy.CrawlStrategy;
-import com.antares.kg.strategy.CrawlStrategyFactory;
-import com.antares.kg.utils.MinioUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.antares.kg.service.CrawlTaskService;
 import com.antares.kg.mapper.CrawlTaskMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 /**
  * @author Antares
@@ -51,8 +41,11 @@ public class CrawlTaskServiceImpl extends ServiceImpl<CrawlTaskMapper, CrawlTask
     @Override
     public void addCrawlTask(CrawlTaskAddReq crawlTaskAddReq) {
         CrawlTask crawlTask = BeanUtil.copyProperties(crawlTaskAddReq, CrawlTask.class);
+        crawlTask.setStatus(CrawlTaskStatusEnum.PENDING.code);
+        crawlTask.setLog("任务已创建并提交...\n");
         this.save(crawlTask);
 
+        // 添加根词条
         Lemma rootLemma = new Lemma();
         rootLemma.setTaskId(crawlTask.getId());
         rootLemma.setDepth(1);
@@ -62,39 +55,43 @@ public class CrawlTaskServiceImpl extends ServiceImpl<CrawlTaskMapper, CrawlTask
 
         Future<?> future = threadPool.submit(() -> startCrawlTask(crawlTask));
         taskMap.put(crawlTask.getId(), future);
-
-        try {
-            Thread.sleep(6000000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
     public void restartCrawlTask(Long taskId) {
         CrawlTask crawlTask = getById(taskId);
-        crawlTask.setLog(crawlTask.getLog() + "任务重新启动...\n");
+        if (crawlTask == null) {
+            throw new BusinessException(HttpCodeEnum.NOT_EXIST, "任务不存在");
+        }
+
         Future<?> future = threadPool.submit(() -> startCrawlTask(crawlTask));
         taskMap.put(crawlTask.getId(), future);
 
-        try {
-            Thread.sleep(6000000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        crawlTask.setStatus(CrawlTaskStatusEnum.EXECUTING.code);
+        crawlTask.setLog(crawlTask.getLog() + "任务重新启动...\n");
+        this.updateById(crawlTask);
     }
 
     @Override
     public void stopCrawlTask(Long taskId) {
         Future<?> future = taskMap.remove(taskId);
-        if (future != null) {
-            CrawlTask crawlTask = getById(taskId);
-            crawlTask.setLog(crawlTask.getLog() + "任务被手动暂停...\n");
-            future.cancel(true);
+        if (future == null) {
+            throw new BusinessException(HttpCodeEnum.NOT_EXIST, "任务不存在");
         }
+
+        CrawlTask crawlTask = getById(taskId);
+        future.cancel(true);
+
+        crawlTask.setStatus(CrawlTaskStatusEnum.STOPED.code);
+        crawlTask.setLog(crawlTask.getLog() + "任务被手动暂停...\n");
+        this.updateById(crawlTask);
     }
 
     public void startCrawlTask(CrawlTask crawlTask) {
+        crawlTask.setStatus(CrawlTaskStatusEnum.EXECUTING.code);
+        crawlTask.setLog(crawlTask.getLog() + "任务开始执行...\n");
+        this.updateById(crawlTask);
+
         Long taskId = crawlTask.getId();
         Lemma nextLemma;
         do {
@@ -106,6 +103,10 @@ public class CrawlTaskServiceImpl extends ServiceImpl<CrawlTaskMapper, CrawlTask
         } while (nextLemma != null);
 
         taskMap.remove(taskId);
+
+        crawlTask.setStatus(CrawlTaskStatusEnum.SUCCUESS.code);
+        crawlTask.setLog(crawlTask.getLog() + "任务执行成功！\n");
+        this.updateById(crawlTask);
     }
 }
 

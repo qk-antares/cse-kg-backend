@@ -1,4 +1,4 @@
-package com.antares.kg;
+package com.antares.kg.utils;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

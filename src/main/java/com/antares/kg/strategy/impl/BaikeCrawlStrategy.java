@@ -47,7 +47,7 @@ public class BaikeCrawlStrategy implements CrawlStrategy {
         try {
             doc = Jsoup.connect(url).get();
         } catch (IOException e) {
-            log.error("获取页面 {} 失败", url);
+            log.error("获取页面 {} 失败: {}", url, e.getMessage());
             mainLemma.setStatus(LemmaStatusEnum.ERROR.getCode());
             mainLemma.setLog("获取页面失败:\n" + e.getMessage());
             return CrawlRes.builder().mainLemma(mainLemma).build();
@@ -88,14 +88,14 @@ public class BaikeCrawlStrategy implements CrawlStrategy {
             Element detail = mainContent.selectFirst(CrawlerConstants.BAIKE_DETAIL_SELECTOR);
             Elements detailSections = Objects.requireNonNull(detail).select(String.format("%s, %s", CrawlerConstants.BAIKE_TITLE_SELECTOR, CrawlerConstants.BAIKE_PARA_SELECTOR));
             for (Element section : detailSections) {
-                if (section.hasClass(CrawlerConstants.BAIKE_TITLE_CLASS)) {
+                if (section.className().startsWith(CrawlerConstants.BAIKE_TITLE_CLASS)) {
                     // 3.5.1 这是标题部分
                     Element title = section.selectFirst("h1, h2, h3, h4, h5, h6");
                     String tagName = Objects.requireNonNull(title).tagName();
                     int titleLevel = Integer.parseInt(tagName.substring(1));
 
                     content.append("\n").append("#".repeat(titleLevel)).append(" ").append(title.text()).append("\n");
-                } else if (section.hasClass(CrawlerConstants.BAIKE_PARA_CLASS)) {
+                } else if (section.className().startsWith(CrawlerConstants.BAIKE_PARA_CLASS)) {
                     // 3.5.2 这是段落部分
                     content.append(extractTextWithLinks(section, referenceLemmas, referenceIds)).append("\n");
                 }

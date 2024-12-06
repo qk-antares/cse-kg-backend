@@ -11,14 +11,14 @@ public interface CrawlerConstants {
     int BAIKE_LINK_SUFFIX_LENGTH = "?fromModule=lemma_inlink".length();
     int BAIKE_TITLE_SUFFIX_LENGTH = "_百度百科".length();
 
-    String BAIKE_MAIN_CONTENT_SELECTOR = "div[class^=contentTab_Wa7Hh]";
-    String BAIKE_SUMMARY_SELECTOR = "div[class^=lemmaSummary_xoHAz J-summary]";
-    String BAIKE_TITLE_SELECTOR = "div[class^=paraTitle_MDWuj]";
-    String BAIKE_PARA_SELECTOR = "div[class^=para_yeVDI]";
+    String BAIKE_MAIN_CONTENT_SELECTOR = "div[class^=contentTab_]";
+    String BAIKE_SUMMARY_SELECTOR = "div[class^=lemmaSummary_]";
+    String BAIKE_TITLE_SELECTOR = "div[class^=paraTitle_]";
+    String BAIKE_PARA_SELECTOR = "div[class^=para_]";
     String BAIKE_DETAIL_SELECTOR = "div[class^=J-lemma-content]";
 
-    String BAIKE_TITLE_CLASS="paraTitle_MDWuj";
-    String BAIKE_PARA_CLASS="para_yeVDI";
+    String BAIKE_TITLE_CLASS="paraTitle_";
+    String BAIKE_PARA_CLASS="para_";
 
 
     String WIKI_LINK_PREFIX = "https://zh.wikipedia.org";

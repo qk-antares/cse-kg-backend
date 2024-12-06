@@ -59,11 +59,11 @@ public class LemmaServiceImpl extends ServiceImpl<LemmaMapper, Lemma>
 
             // 2. 更新主词条
             if (mainLemma.getStatus() == LemmaStatusEnum.SUCCESS.getCode()) {
-                String directory = String.format("baike/%d-RootName=%s/", crawlTask.getId(), crawlTask.getRootName());
+                String directory = String.format("%s/%d-RootName=%s/", crawlTask.getType(), crawlTask.getId(), crawlTask.getRootName());
                 String fileName = String.format("%d-%s-Score=%d.txt", lemma.getId(), mainLemma.getTitle(), mainLemma.getScore());
                 minioUtil.uploadStringAsTxt("cse-kg", directory, fileName, mainLemma.getContent());
                 lemma.setContent(directory + fileName);
-                log.info("保存路径: {}", directory + fileName);
+                log.info("保存路径: {}", lemma.getContent());
 
                 // 3. 添加待爬词条
                 Integer depth = lemma.getDepth();

@@ -12,7 +12,6 @@ import org.apache.ibatis.annotations.Param;
 */
 public interface LemmaMapper extends BaseMapper<Lemma> {
     Lemma getNextLemma(@Param("taskId") Long taskId);
-    Lemma getCrawledLemma(@Param("url") String url);
 }
 
 

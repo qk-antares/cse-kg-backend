@@ -1,4 +1,4 @@
-package com.antares.kg;
+package com.antares.kg.utils;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.json.JSONObject;

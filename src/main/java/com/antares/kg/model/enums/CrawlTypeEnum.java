@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum CrawlTypeEnum {
     // 维基百科
     WIKIPEDIA("wikipedia"),
-    //请求的资源不存在
+    // 百度百科
     BAIDU_BAIKE("baike");
 
     public final String type;

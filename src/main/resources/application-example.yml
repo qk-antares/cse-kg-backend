@@ -1,5 +1,5 @@
 server:
-  port: 8012
+  port: 8010
   servlet:
     context-path: /api
 spring:
@@ -9,7 +9,7 @@ spring:
     active: dev # 开发环境
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url:
+    url: jdbc:mysql://mini.fffu.fun:3306/cse_kg?useSSL=false&serverTimezone=Asia/Shanghai
     username:
     password:
 mybatis-plus:
@@ -23,3 +23,7 @@ mybatis-plus:
       logic-delete-field: isDelete # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
       logic-delete-value: 1 # 逻辑已删除值(默认为 1)
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+minio:
+  endpoint: http://mini.fffu.fun:9000
+  access-key:
+  secret-key:

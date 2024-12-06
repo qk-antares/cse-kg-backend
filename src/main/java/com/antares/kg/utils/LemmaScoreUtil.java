@@ -25,7 +25,7 @@ public class LemmaScoreUtil {
                 .execute()) {
             String responseBody = response.body();
             JSONObject responseJson = JSONUtil.parseObj(responseBody);
-            return Integer.parseInt(responseJson.getStr("response"));
+            return Math.min(10, Integer.parseInt(responseJson.getStr("response")));
         } catch (Exception e) {
             log.error("获取词条分数失败：{}", e.getMessage());
             return -1;
