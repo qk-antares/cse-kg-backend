@@ -20,11 +20,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.List;
+import java.util.*;
 
 import org.json.JSONObject;
 import com.github.houbb.opencc4j.util.ZhConverterUtil;
@@ -91,8 +87,8 @@ public class WikipediaCrawlStrategy implements CrawlStrategy {
             // 3.3 根据总结对该词条评分
             int score = LemmaScoreUtil.scoreLemmaBySummary(ConvertToSimplified(content.toString()));
             mainLemma.setScore(score);
-            String rawTitle = doc.title().replace('/', '-');  // Wiki百科中的标题中可能包含斜杠 
-            mainLemma.setTitle(rawTitle.substring(0, rawTitle.length() - CrawlerConstants.WIKI_TITLE_SUFFIX_LENGTH));
+            String rawTitle = doc.title().replace('/', '-');  // Wiki百科中的标题中可能包含斜杠
+            mainLemma.setTitle(ConvertToSimplified(rawTitle.substring(0, rawTitle.length() - CrawlerConstants.WIKI_TITLE_SUFFIX_LENGTH)) );
 
 
             // 3.4 词条和主题的关联性太低 或者 分数获取失败
@@ -106,60 +102,79 @@ public class WikipediaCrawlStrategy implements CrawlStrategy {
             }
             // 3.5 获取详细描述
             // 由于总结和详细介绍都在 mainContent 中，并且 mainContent 中第一个标题是详细内容的开始，所以需要过滤掉之前的总结内容
-            boolean is_detail = false;
+            boolean isDetail = false;
+            boolean hasNotAppend = false;
             // 构建选择器字符串，由于维基百科的页面结构比较复杂，所以需要选择多个元素
-            String selectors = String.format("%s, %s, %s, %s, %s, %s",
+            String selectors = String.format("%s, %s, %s, %s, %s, %s, %s",
                     CrawlerConstants.WIKI_TITLE_SELECTOR,
                     CrawlerConstants.WIKI_PARA_SELECTOR,
                     "dt",
                     "dd",
                     "ol",
-                    "ul");
+                    "ul",
+                    "tr");
 
             // 选择元素
             Elements detailSections = Objects.requireNonNull(mainContent).select(selectors);
+
             for (Element section : detailSections) {
                 // 是标题，如果遇到第一个标题，则意味着接下来是详细内容
                 if (section.hasClass(CrawlerConstants.WIKI_TITLE_CLASS)) {
-                    is_detail = true;
+                    isDetail = true;
+                    hasNotAppend = false;
                     // 3.5.1 这是标题部分
                     Element title = section.selectFirst("h1, h2, h3, h4, h5, h6");
                     String tagName = Objects.requireNonNull(title).tagName();
                     int titleLevel = Integer.parseInt(tagName.substring(1));
+                    // 将 title 转换成简体中文
+                    String simplifiedTitle = ConvertToSimplified(title.text());
 
+                    List<String> excludedTitles = Arrays.asList("参考文献", "参考资料","外部连接","外部链接","注解","脚注","延伸阅读","注释","外部连结","资料来源","引用","参考","参见");
+
+                    // 如果到了相关条目，内容不是该词条的介绍，但是之后的内容一般是有<a>标签的，所以不添加内容，但是要处理<a>标签
+                    List<String> notAppend = Arrays.asList("相关条目","关联项目","相关","相关内容");
+                    if (notAppend.contains(simplifiedTitle)) {hasNotAppend = true;continue;}
                     // 如果到了 参考文献 标题，就停止
-                    if (ConvertToSimplified(title.text()).equals("参考文献")){break;}
+                    if (excludedTitles.contains(simplifiedTitle)){break;}
 
-                    content.append("\n").append("#".repeat(titleLevel)).append(" ").append(title.text()).append("\n");
-                } else if (is_detail) {
+                    content.append("\n").append("#".repeat(titleLevel)).append(" ").append(simplifiedTitle).append("\n");
+                } else if (isDetail) {
                     if (section.tagName().equals("p")) {
                         // 3.5.2 这是段落部分
-                        content.append(extractTextWithLinks(section, referenceLemmas, referenceIds)).append("\n");
+                        StringBuilder stringBuilder = extractTextWithLinks(section, referenceLemmas, referenceIds);
+                        if (!hasNotAppend){content.append(stringBuilder).append("\n");}
                     }
-                        // 3.5.3 处理其他标签元素
+                    // 3.5.3 处理其他标签元素
                     else if (section.tagName().equals("dt")){
-                        content.append("**").append(ConvertToSimplified(section.text())).append("**\n");
+                        String s = ConvertToSimplified(section.text());
+                        if (!hasNotAppend){content.append("**").append(s).append("**\n");}
                     } else if (section.tagName().equals("dd")) {
-                        content.append(extractTextWithLinks(section, referenceLemmas, referenceIds)).append("\n");
+                        StringBuilder stringBuilder = extractTextWithLinks(section, referenceLemmas, referenceIds);
+                        if (!hasNotAppend){ content.append(stringBuilder).append("\n");}
                     } else if (section.tagName().equals("ol")) {
                         Elements lis = section.select("li");
                         int no = 1;
                         for (Element li : lis) {
-                            content.append(no).append(". ").append(extractTextWithLinks(li, referenceLemmas, referenceIds)).append("\n");
+                            StringBuilder stringBuilder = extractTextWithLinks(li, referenceLemmas, referenceIds);
+                            if (!hasNotAppend){content.append(no).append(". ").append(stringBuilder).append("\n");}
                             no += 1;
                         }
                     } else if (section.tagName().equals("ul")) {
                         Elements lis = section.select("li");
                         for (Element li : lis) {
-                            content.append("· ").append(extractTextWithLinks(li, referenceLemmas, referenceIds)).append("\n");
+                            StringBuilder stringBuilder = extractTextWithLinks(li, referenceLemmas, referenceIds);
+                            if (!hasNotAppend){content.append("· ").append(stringBuilder).append("\n");}
                         }
+                    } else if (section.tagName().equals("tr")) {
+                        StringBuilder stringBuilder = extractTextWithLinks(section, referenceLemmas, referenceIds);
+                        if (!hasNotAppend){content.append(stringBuilder).append("\n");}
                     }
-                } 
+                }
             }
 
             mainLemma.setContent(ConvertToSimplified(content.toString()));
             mainLemma.setStatus(LemmaStatusEnum.SUCCESS.getCode());
-           
+
             return CrawlRes.builder().mainLemma(mainLemma).referenceLemmas(referenceLemmas).build();
         } catch (NullPointerException e) {
             log.error("{} 中获取DOM元素失败", url);
@@ -198,7 +213,7 @@ public class WikipediaCrawlStrategy implements CrawlStrategy {
                  */
                 // 这里 id 表示词条的 curid 例如计算机科学的 curid 为 25
                 // https://zh.wikipedia.org/wiki?curid=0 显示为标题无效
-                int id = 0;  
+                int id = 0;
                 id = getID(name);
 
                 // 这是一个有效的引用词条链接
@@ -206,10 +221,10 @@ public class WikipediaCrawlStrategy implements CrawlStrategy {
                     Lemma pendingLemma = new Lemma();
 
                     pendingLemma.setName(ConvertToSimplified(name));
-            
+
                     // 这里得到的 url 格式为 https://zh.wikipedia.org/wiki/词条名称
                     pendingLemma.setUrl(CrawlerConstants.WIKI_LINK_PREFIX + href);
-                
+
                     pendingLemma.setStatus(LemmaStatusEnum.PENDING.getCode());
 
                     referenceLemmas.add(pendingLemma);
@@ -224,7 +239,7 @@ public class WikipediaCrawlStrategy implements CrawlStrategy {
     }
 
 
-     /**
+    /**
      * 获取维基百科页面的ID
      *
      * @param title 维基百科页面的标题
