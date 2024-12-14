@@ -12,11 +12,6 @@ spring:
     url: jdbc:mysql://mini.fffu.fun:3306/cse_kg?useSSL=false&serverTimezone=Asia/Shanghai
     username:
     password:
-  neo4j:
-    uri: bolt://mini.fffu.fun:7687
-    authentication:
-      username: neo4j
-      password:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true # 当数据库字段使用_连接时这里配置成true
@@ -32,3 +27,8 @@ minio:
   endpoint: http://mini.fffu.fun:9000
   access-key:
   secret-key:
+cse-kg:
+  neo4j:
+    uri: bolt://mini.fffu.fun:7687
+    username: neo4j
+    password:
