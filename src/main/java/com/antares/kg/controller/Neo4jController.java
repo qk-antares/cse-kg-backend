@@ -17,4 +17,9 @@ public class Neo4jController {
     public Map<String, Object> getNodes(@RequestParam("name") String name){
         return neo4jService.getNodes(name);
     }
+
+    @GetMapping("/all")
+    public Map<String, Object> getAll(){
+        return neo4jService.getAll();
+    }
 }

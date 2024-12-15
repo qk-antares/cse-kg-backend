@@ -9,6 +9,7 @@ import org.neo4j.driver.*;
 import org.neo4j.driver.Record;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Relationship;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -19,6 +20,56 @@ import java.util.*;
 public class Neo4jServiceImpl implements Neo4jService {
     @Resource
     private Driver driver;
+
+    @Override
+    public Map<String, Object> getAll() {
+        try (Session session = driver.session()) {
+            String query = "MATCH (n)-[r]->(m) RETURN n, r, m LIMIT 100";
+            Result result = session.run(query);
+
+            // 使用Map来去重节点，Map的key是节点id
+            Map<Long, Map<String, Object>> uniqueNodes = new HashMap<>();
+            List<Map<String, Object>> relationships = new ArrayList<>();
+
+            while (result.hasNext()) {
+                Record record = result.next();
+                Node node1 = record.get("n").asNode();
+                Node node2 = record.get("m").asNode();
+                Relationship relationship = record.get("r").asRelationship();
+
+                // 去重节点1
+                uniqueNodes.putIfAbsent(node1.id(), createNodeMap(node1));
+
+                // 去重节点2
+                uniqueNodes.putIfAbsent(node2.id(), createNodeMap(node2));
+
+                // 处理关系
+                Map<String, Object> relationshipMap = new HashMap<>();
+                relationshipMap.put("source", node1.id());
+                relationshipMap.put("target", node2.id());
+                relationshipMap.put("type", relationship.type());
+                relationshipMap.put("properties", relationship.asMap());
+                relationships.add(relationshipMap);
+            }
+
+            // 从uniqueNodes的Map中提取出去重后的节点列表
+            List<Map<String, Object>> nodes = new ArrayList<>(uniqueNodes.values());
+
+            Map<String, Object> graphData = new HashMap<>();
+            graphData.put("nodes", nodes);
+            graphData.put("relationships", relationships);
+            return graphData;
+        }
+    }
+
+    // 辅助方法，用于创建节点的Map
+    private Map<String, Object> createNodeMap(Node node) {
+        Map<String, Object> nodeMap = new HashMap<>();
+        nodeMap.put("id", node.id());
+        nodeMap.put("labels", node.labels());
+        nodeMap.put("properties", node.asMap());
+        return nodeMap;
+    }
 
     @Override
     public Map<String, Object> getNodes(String name) {

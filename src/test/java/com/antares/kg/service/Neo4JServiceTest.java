@@ -15,5 +15,12 @@ public class Neo4JServiceTest {
     public void test() {
         Map<String, Object> res = neo4jService.getNodes("计算机科学");
         System.out.println(res);
+
+    }
+
+    @Test
+    public void test2() {
+        Map<String, Object> res = neo4jService.getAll();
+        System.out.println(res);
     }
 }
