@@ -1,9 +1,9 @@
-package com.antares.kg.strategy;
+package com.antares.kg.service.strategy;
 
 import com.antares.kg.exception.BusinessException;
 import com.antares.kg.model.enums.HttpCodeEnum;
-import com.antares.kg.strategy.impl.BaikeCrawlStrategy;
-import com.antares.kg.strategy.impl.WikipediaCrawlStrategy;
+import com.antares.kg.service.strategy.impl.BaikeCrawlStrategy;
+import com.antares.kg.service.strategy.impl.WikipediaCrawlStrategy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;

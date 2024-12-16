@@ -1,14 +1,12 @@
-package com.antares.kg.strategy.impl;
+package com.antares.kg.service.strategy.impl;
 
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.URLUtil;
 import com.antares.kg.constant.CrawlerConstants;
-import com.antares.kg.exception.BusinessException;
 import com.antares.kg.model.dto.crawl.CrawlRes;
 import com.antares.kg.model.entity.Lemma;
-import com.antares.kg.model.enums.HttpCodeEnum;
 import com.antares.kg.model.enums.LemmaStatusEnum;
-import com.antares.kg.strategy.CrawlStrategy;
+import com.antares.kg.service.strategy.CrawlStrategy;
 import com.antares.kg.utils.LemmaScoreUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;

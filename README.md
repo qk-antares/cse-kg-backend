@@ -6,13 +6,15 @@
 
 1. 配置MySQL连接（见第3点，你可以使用已经搭建好的MySQL环境），导入sql目录下的建表语句（使用搭建好的环境则不需要）
 2. 将仓库中`application-example.yml`拷贝一份为`application.yml`（不要将`application.yml`直接上传到github仓库，因为其中有密码等敏感数据，我已经在.gitignore中设置了忽略`application.yml`）
-3. 配置`application.yml`中的`spring.datasource`和`minio`，用户名和密码在微信群中（minio和mysql的用户名密码是一样的）
-4. 点开`pom.xml`下载依赖
-5. `Debug`或者`Run`主类`CseKgApplication`
+3. 配置`application.yml`中的`spring.datasource`和`minio`，以及`cse-kg.neo4j`，用户名和密码在微信群中（minio、mysql和neo4j的用户名密码是一样的）
+4. 配置graphrag的conda环境路径；以及graphrag项目路径（我已经一并上传到了resources目录下，因为需要graphrag构建索引的结果来实现聊天）
+5. 运行Ollama本地大模型（涉及到聊天功能），参考教程：[超详细，GraphRAG（最新版）+Ollama本地部署，以及中英文示例超详细，GraphRAG+Ollama本地部署， - 掘金](https://juejin.cn/post/7439046849883226146)
+6. 点开`pom.xml`下载依赖
+7. `Debug`或者`Run`主类`CseKgApplication`
 
 #### 1.2 如何测试
 
-测试相关的代码放在`test`中。如果想测试RESTful API，可通过`test`下`request`目录中的Http Request
+测试相关的代码放在`test`中。测试Java代码在`service`目录下，如果想测试RESTful API，可通过`test`下`request`目录中的Http Request
 
 #### 1.3 项目任务书
 
@@ -101,7 +103,13 @@
 
 在**准备好所有的词条之后**，利用GraphRAG来提取关键信息，例如实体、关系、社区等，并保存到Neo4J。
 
-这里主要有两个问题：首先是**中文提示词的设计**（未解决），其次是**算力/时间开销**的问题（只保留100个和计算机科学最相关的词条，提供整体的解决方案，系统做简单的演示）
+这里主要有两个问题：首先是⚠️⚠️⚠️**中文提示词的设计**（未解决），其次是**算力/时间开销**的问题（只保留100个和计算机科学最相关的词条，提供整体的解决方案，系统做简单的演示）
+
+
+
+中文提示词的设计是个重要的问题，目前使用自带的提示词调整功能，构建后的索引还是有大量的英文（虽然喂进去的文本是纯中文的）
+
+
 
 #### 3.2 知识图谱的可视化
 
@@ -112,15 +120,26 @@
 
 - 渲染性能，前端用的图可视化库最多支持多少节点和边？因为100个词条涉及到的实体和关系也是非常多了
 
+
+
+目前已经遇到的问题：
+
+- ⚠️⚠️⚠️graphrag构建的结果导进Neo4J还有些问题，主要是因为随着graphrag的更新，其构建的parquet产物文件已经改变了（包括每个文件的结构，以及有哪些文件），这导致网上很多的代码都不可用，或者可以运行，但构建出来的图谱有不对的地方。graphrag官方对其构建输出的解释文档在[Outputs - GraphRAG](https://microsoft.github.io/graphrag/index/outputs/)
+
+
+
 ---
 
 ### 4. 问答系统
 
+目前已经实现基础的问答功能，返回的数据格式如下：
 
+![image-20241216195523097](https://s2.loli.net/2024/12/16/5sJ2YZLOgGoyBi9.png)
 
+现在有一小一大两个问题：
 
-
-
+- 小问题：我不清楚前端能否正确处理这里的加粗符号，例如\*\*数据结构和算法\*\*
+- 大问题：graphrag的回答有很多形如`[Data: 25]`，这实际上是在引用抽取出的实体。前端能否将其转换成可点击的一个链接（用正则表达式匹配），点击后发送请求到后端（给我Data的Id），然后弹出一个模态框展示这个实体的信息。
 
 ---
 

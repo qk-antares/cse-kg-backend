@@ -18,7 +18,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(@NotNull CorsRegistry registry) {
                 registry.addMapping("/**") // 匹配所有路径
-                        .allowedOrigins("*") // 允许的来源
+                        .allowedOriginPatterns("*") // 允许的来源
                         .allowedMethods("*") // 允许的请求方法
                         .allowedHeaders("*") // 允许的请求头
                         .allowCredentials(true); // 是否允许发送Cookie

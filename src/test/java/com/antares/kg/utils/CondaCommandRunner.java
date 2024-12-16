@@ -10,7 +10,7 @@ public class CondaCommandRunner {
 
         try {
             String[] fullCommand = {
-                    "powershell.exe", "-Command", "D:\\anaconda3\\envs\\graphrag\\Scripts\\graphrag  query --root E:\\Workplace\\GraphPro\\graphrag\\ragtest --method local --query \"计算机科学专业需要学习哪些课程?\""
+                    "powershell.exe", "-Command", "D:\\anaconda3\\envs\\graphrag\\Scripts\\graphrag query --root E:\\Workplace\\GraphPro\\backup\\ragtest-v1 --method local --query \"计算机科学专业需要学习哪些课程?\""
             };
 
             // 使用ProcessBuilder启动

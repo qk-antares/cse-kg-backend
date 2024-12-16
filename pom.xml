@@ -32,6 +32,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!-- 校验 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.neo4j.driver/neo4j-java-driver -->
         <dependency>
             <groupId>org.neo4j.driver</groupId>

@@ -44,7 +44,17 @@ create table `lemma_link` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='词条关系表';
 
-
+create table `chat` (
+    `id` bigint not null auto_increment comment '对话id',
+    `msg` text not null comment '用户输入的提问',
+    `type` varchar(32) not null default 'local' comment '提问类型（local，global）',
+    `status` tinyint not null default 0 comment '对话状态，0是已发送，1是正在处理，2是处理成功，3是处理失败',
+    `res` text default null comment 'GraphRAG的回复',
+    `create_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '创建时间',
+    `update_time` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '更新时间',
+    `is_delete` tinyint NOT NULL DEFAULT 0 COMMENT '是否删除',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='聊天对话表';
 
 
 # 以下是开发中测试的SQL语句，不用执行

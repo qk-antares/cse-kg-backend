@@ -1,4 +1,4 @@
-package com.antares.kg.strategy;
+package com.antares.kg.service.strategy;
 
 import com.antares.kg.model.dto.crawl.CrawlRes;
 

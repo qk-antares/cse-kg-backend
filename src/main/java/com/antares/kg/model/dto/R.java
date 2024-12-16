@@ -1,4 +1,4 @@
-package com.antares.kg.utils;
+package com.antares.kg.model.dto;
 
 import java.io.Serializable;
 

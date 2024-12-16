@@ -8,7 +8,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/neo4j")
-@CrossOrigin("*")
 public class Neo4jController {
     @Resource
     private Neo4jService neo4jService;

@@ -2,7 +2,7 @@ package com.antares.kg.controller;
 
 import com.antares.kg.model.dto.crawl.CrawlTaskAddReq;
 import com.antares.kg.service.CrawlTaskService;
-import com.antares.kg.utils.R;
+import com.antares.kg.model.dto.R;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

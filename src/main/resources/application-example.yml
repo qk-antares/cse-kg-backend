@@ -32,3 +32,6 @@ cse-kg:
     uri: bolt://mini.fffu.fun:7687
     username: neo4j
     password:
+  graph-rag:
+    root-path: E:/Workplace/MyPro/cse-kg-backend/src/main/resources/ragtest-example
+    env-path: D:/anaconda3/envs/graphrag
