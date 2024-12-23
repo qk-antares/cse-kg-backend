@@ -1,0 +1,94 @@
+
+-目标-
+给定一份与计算机科学与技术相关的文本文件和一个实体类型列表，从文本中识别出属于这些类型的所有实体以及实体之间的所有关系。
+ 
+-步骤-
+1. 识别所有和计算机科学与技术领域的概念相关的实体：对于每个识别出的实体，提取以下信息：
+- entity_name: 实体名称
+- entity_type: 以下类型之一：[软件工程, 数据结构, 计算机网络, 数据库, 计算机体系结构, 操作系统, 计算机硬件, 机器学习, 深度学习, 计算机科学, 现实应用, 数据挖掘, 算法, 人物, 机构]
+- entity_description: 实体的属性和活动的全面描述
+格式化每个实体为：
+("entity"{tuple_delimiter}<entity_name>{tuple_delimiter}<entity_type>{tuple_delimiter}<entity_description>)
+ 
+2. 识别相关实体对：从步骤1识别的实体中，找出所有*明确相关的* (source_entity, target_entity) 对。
+对于每对相关实体，提取以下信息：
+- source_entity: 来源实体的名称，来自步骤1识别的实体
+- target_entity: 目标实体的名称，来自步骤1识别的实体
+- relationship_description: 解释为什么你认为来源实体和目标实体之间存在关系
+- relationship_strength: 一个表示来源实体与目标实体之间关系强度的数值评分
+格式化每个关系为：
+("relationship"{tuple_delimiter}<source_entity>{tuple_delimiter}<target_entity>{tuple_delimiter}<relationship_description>{tuple_delimiter}<relationship_strength>)
+ 
+3. 返回输出：以 {record_delimiter} 作为列表分隔符，返回在步骤1和步骤2中识别出的所有实体和关系。
+ 
+4. 完成时输出 {completion_delimiter}。
+ 
+-例子-
+######################
+例1:
+Entity_types: [软件工程, 数据结构, 计算机网络, 数据库, 计算机体系结构, 操作系统, 计算机硬件, 机器学习, 深度学习, 计算机科学, 现实应用, 数据挖掘, 算法, 人物, 机构]
+Text:
+涉及到的敏感问题，需要针对可能产生的冲突及早预防，而不是等到问题矛盾到了不可解决的时候才去想办法化解。在人工智能发展上首先要做好风险管控，这样发展起来的人工智能才是人类之福。随着人工智能的飞速发展，人类必须要加快自身的进化速度从而使人类在人机关系中掌握主动权和控制权。
+
+机器翻译，智能控制，专家系统，机器人学，语言和图像理解，遗传编程机器人工厂，自动程序设计，航天应用，庞大的信息处理，储存与管理，执行化合生命体无法执行的或复杂或规模庞大的任务等等。
+值得一提的是，机器翻译是人工智能的重要分支和最先应用领域。不过就已有的机译成就来看，机译系统的译文质量离终极目标仍相差甚远；而机译质量是机译系统成败的关键。中国数学家、语言学家周海中教授曾在论文《机器翻译五十年》中指出：要提高机译的质量，首先要解决的是语言本身问题而不是程序设计问题；单靠若干程序来做机译系统，肯定是无法提高机译质量的；另外在人类尚未明了大脑是如何进行语言的模糊识别和逻辑判断的情况下，机器学习
+------------------------
+Output:
+ ("entity"{tuple_delimiter}人工智能{tuple_delimiter}计算机科学{tuple_delimiter}人工智能是计算机科学的一个分支，旨在创造能够执行通常需要人类智能才能完成的任务的智能机器，例如视觉感知、语音识别、决策制定和语言翻译)
+{record_delimiter}
+ ("entity"{tuple_delimiter}风险管控{tuple_delimiter}现实应用{tuple_delimiter}风险管控是人工智能在发展和应用时面临的一个问题。需要针对可能产生的冲突及早预防，而不是等到问题矛盾到了不可解决的时候才去想办法化解。在人工智能发展上首先要做好风险管控，这样发展起来的人工智能才是人类之福。随着人工智能的飞速发展，人类必须要加快自身的进化速度从而使人类在人机关系中掌握主动权和控制权)
+{record_delimiter}
+("entity"{tuple_delimiter}机器翻译{tuple_delimiter}深度学习{tuple_delimiter}机器翻译是深度学习的一个子领域，专注于开发能够将文本从一种语言翻译成另一种语言的系统)
+{record_delimiter}
+("entity"{tuple_delimiter}专家系统{tuple_delimiter}机器学习{tuple_delimiter}专家系统是机器学习的一个研究领域，旨在通过模拟该领域人类专家的决策能力来解决特定问题)
+{record_delimiter}
+("entity"{tuple_delimiter}机器人学{tuple_delimiter}计算机科学{tuple_delimiter}机器人学是计算机科学与技术的一个应用领域，专注于机器人设计、建造、操作和应用)
+{record_delimiter}
+("entity"{tuple_delimiter}语言和图像理解{tuple_delimiter}机器学习{tuple_delimiter}语言与图像理解是机器学习的一个子领域，专注于使机器能够理解和解释人类语言和视觉内容)
+{record_delimiter}
+("entity"{tuple_delimiter}自动程序设计{tuple_delimiter}软件工程{tuple_delimiter}自动化编程是利用人工智能和机器学习算法自动编写软件代码，无需人工干预)
+{record_delimiter}
+("relationship"{tuple_delimiter}人工智能{tuple_delimiter}风险管控{tuple_delimiter}在人工智能发展上首先要做好风险管控，这样发展起来的人工智能才是人类之福{tuple_delimiter}10)
+{record_delimiter}
+("relationship"{tuple_delimiter}人工智能{tuple_delimiter}机器翻译{tuple_delimiter}人工智能是一个更广泛的领域，包括机器翻译这一子领域，机器翻译专注于开发能够将文本从一种语言翻译为另一种语言的系统{tuple_delimiter}10)
+{record_delimiter}
+("relationship"{tuple_delimiter}人工智能{tuple_delimiter}专家系统{tuple_delimiter}人工智能是一个更广泛的领域，包括专家系统这一子领域，专家系统是通过模拟人类专家的决策能力来解决特定问题的人工智能程序{tuple_delimiter}8)
+{record_delimiter}
+("relationship"{tuple_delimiter}人工智能{tuple_delimiter}机器人学{tuple_delimiter}人工智能是一个更广泛的领域，包括机器人学这一子领域，机器人学专注于机器人设计、建造、操作和应用{tuple_delimiter}4)
+{record_delimiter}
+("relationship"{tuple_delimiter}人工智能{tuple_delimiter}语言和图像理解{tuple_delimiter}人工智能是一个更广泛的领域，包括语言和图像理解这一子领域，该领域专注于使机器能够理解和解释人类语言与视觉内容{tuple_delimiter}8)
+{record_delimiter}
+("relationship"{tuple_delimiter}人工智能{tuple_delimiter}自动程序设计{tuple_delimiter}人工智能是一个更广泛的领域，包括自动化编程这一子领域，自动化编程利用人工智能和机器学习算法自动编写软件代码{tuple_delimiter}3)
+{completion_delimiter}
+
+######################
+Example 2:
+Entity_types: [软件工程, 数据结构, 计算机网络, 数据库, 计算机体系结构, 操作系统, 计算机硬件, 机器学习, 深度学习, 计算机科学, 现实应用, 数据挖掘, 算法, 人物, 机构]
+Text:
+超级计算机是计算机中功能最强、运算速度最快、存储容量最大的一类计算机，是国家科技发展水平和综合国力的重要标志。超级计算机拥有最强的并行计算能力，主要用于科学计算。在气象、军事、能源、航天、探矿等领域承担大规模、高速度的计算任务。在结构上，虽然超级计算机和服务器都可能是多处理器系统，二者并无实质区别，但是现代超级计算机较多采用集群系统，更注重浮点运算的性能，可看着是一种专注于科学计算的高性能服务器，而且价格非常昂贵。
+
+### 网络计算机
+1、服务器
+计算机图片展示(2张)专指某些高性能计算机，能通过网络，对外提供服务。相对于普通电脑来说，稳定性、安全性、性能等方面都要求更高，因此在CPU、芯片组、内存、磁盘系统、网络等硬件和普通电脑有所不同。服务器是网络的节点，存储、处理网络上80%的数据、信息，在网络中起到举足轻重的作用。它们是为客户端计算机提供各种服务的高性能的计算机，其高性能主要表高速度的运算能力、长时间的可靠运行、强大的外部数据吞吐能力等方面。服务器的构成与普通电脑类似，也有处理器、硬盘、内存、系统总线等，但因为它是针对具体的
+------------------------
+output:
+ ("entity"{tuple_delimiter}超级计算机{tuple_delimiter}计算机硬件{tuple_delimiter}超级计算机是最强大、速度最快、容量最大的计算机，是衡量一个国家科技发展水平和综合实力的重要指标)
+{record_delimiter}
+("entity"{tuple_delimiter}计算机{tuple_delimiter}计算机硬件{tuple_delimiter}这里所指的计算机是超级计算机，具有最强的并行计算能力，主要用于科学计算。在气象、军事、能源、航空、矿业等领域执行大规模高速度的计算任务)
+{record_delimiter}
+("entity"{tuple_delimiter}服务器{tuple_delimiter}计算机硬件{tuple_delimiter}服务器是提供网络服务的特定高性能计算机。与普通计算机相比，它在CPU、芯片组、内存、磁盘系统和网络方面具有更高的稳定性、安全性和性能)
+{record_delimiter}
+("entity"{tuple_delimiter}网络计算机{tuple_delimiter}计算机硬件{tuple_delimiter}网络计算机是指能够提供网络服务的特定高性能计算机。在CPU、芯片组、内存、磁盘系统和网络方面，它比普通计算机更稳定、安全且性能更强)
+{record_delimiter}
+("relationship"{tuple_delimiter}超级计算机{tuple_delimiter}网络计算机{tuple_delimiter}超级计算机是一种高性能计算机，能够提供网络服务{tuple_delimiter}3)
+{record_delimiter}
+("relationship"{tuple_delimiter}服务器{tuple_delimiter}网络计算机{tuple_delimiter}服务器是一种高性能计算机，能够提供网络服务{tuple_delimiter}5)
+{completion_delimiter}
+
+######################
+-真实数据-
+######################
+Entity_types: [软件工程, 数据结构, 计算机网络, 数据库, 计算机体系结构, 操作系统, 计算机硬件, 机器学习, 深度学习, 计算机科学, 现实应用, 数据挖掘, 算法, 人物, 机构]
+Text: {input_text}
+######################
+Output:

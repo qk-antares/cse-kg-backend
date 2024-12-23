@@ -10,7 +10,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mini.fffu.fun:3306/cse_kg?useSSL=false&serverTimezone=Asia/Shanghai
-    username:
+    username: cse_kg
     password:
 mybatis-plus:
   configuration:
@@ -25,7 +25,7 @@ mybatis-plus:
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 minio:
   endpoint: http://mini.fffu.fun:9000
-  access-key:
+  access-key: cse_kg
   secret-key:
 cse-kg:
   neo4j:
@@ -33,5 +33,5 @@ cse-kg:
     username: neo4j
     password:
   graph-rag:
-    root-path: E:/Workplace/MyPro/cse-kg-backend/src/main/resources/ragtest-example
     env-path: D:/anaconda3/envs/graphrag
+    root-path: E:/Workplace/MyPro/cse-kg-backend/src/main/resources/ragtest

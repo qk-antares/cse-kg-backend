@@ -4,12 +4,34 @@
 
 #### 1.1 如何运行
 
-1. 配置MySQL连接（见第3点，你可以使用已经搭建好的MySQL环境），导入sql目录下的建表语句（使用搭建好的环境则不需要）
-2. 将仓库中`application-example.yml`拷贝一份为`application.yml`（不要将`application.yml`直接上传到github仓库，因为其中有密码等敏感数据，我已经在.gitignore中设置了忽略`application.yml`）
-3. 配置`application.yml`中的`spring.datasource`和`minio`，以及`cse-kg.neo4j`，用户名和密码在微信群中（minio、mysql和neo4j的用户名密码是一样的）
-4. 配置graphrag的conda环境路径；以及graphrag项目路径（我已经一并上传到了resources目录下，因为需要graphrag构建索引的结果来实现聊天）
-5. 运行Ollama本地大模型（涉及到聊天功能），参考教程：[超详细，GraphRAG（最新版）+Ollama本地部署，以及中英文示例超详细，GraphRAG+Ollama本地部署， - 掘金](https://juejin.cn/post/7439046849883226146)
+1. 将仓库中`application-example.yml`拷贝一份为`application.yml`（不要将`application.yml`直接上传到github仓库，因为其中有密码等敏感数据，我已经在.gitignore中设置了忽略`application.yml`）
+
+2. 配置`application.yml`中的`spring.datasource`和`minio`，以及`cse-kg.neo4j`，密码在微信群中（minio、mysql和neo4j的密码是一样的）。
+
+   > 非机器学习项目小组成员的运行`sql`目录下的脚本建表
+
+3. 使用conda安装graphrag，**强烈建议**新建一个虚拟环境安装，不要污染`base`环境
+
+   ```shell
+   conda create -n graphrag python=3.10
+   # 注意这里安装0.5.0版本，之后更新的版本都不支持调用本地大模型或者agicto
+   pip install graphrag==0.5.0
+   ```
+
+4. 配置graphrag的conda环境路径`cse-kg.graph-rag.env-path`；以及graphrag项目路径`cse-kg.graph-rag.root-path`（我已经一并上传到了`resources`目录下，因为需要graphrag构建索引的结果来实现聊天）
+
+   `env-path`可以通过以下指令查看：
+
+   ```shell
+   conda env list
+   ```
+
+   ![image-20241223205231526](https://s2.loli.net/2024/12/23/9SpXUJGWHcrINLy.png)
+
+5. 配置`agicto`的`API_KEY`：打开`resources/ragtest/.env`文件进行配置。`API_KEY`可以通过注册的方式获取（账号初始2元额度）：`https://agicto.com/?channel=ckVOGyLHn`，请大家到这个带`?channel=ckVOGyLHn`后缀的路径去注册吧，每邀请一个人我这边可以获取3元的`API_KEY`额度，攒够30元额度我把完整的100个词条都用这里面的第三方大模型构建一遍索引，这样构建出来的知识图谱质量更高（目前我用的ollama本地大模型的质量太差了）
+
 6. 点开`pom.xml`下载依赖
+
 7. `Debug`或者`Run`主类`CseKgApplication`
 
 #### 1.2 如何测试
@@ -97,19 +119,18 @@
 
    在完成2之后，可以将爬取到的词条之间的引用关系用图的形式展示出来。点击某个节点，还可以即时地获取这个词条的解释展示出来。
 
+---
+
 ### 3. 知识图谱构建
 
 #### 3.1 实体和关系的抽取
 
 在**准备好所有的词条之后**，利用GraphRAG来提取关键信息，例如实体、关系、社区等，并保存到Neo4J。
 
-这里主要有两个问题：首先是⚠️⚠️⚠️**中文提示词的设计**（未解决），其次是**算力/时间开销**的问题（只保留100个和计算机科学最相关的词条，提供整体的解决方案，系统做简单的演示）
+这里主要有两个问题：
 
-
-
-中文提示词的设计是个重要的问题，目前使用自带的提示词调整功能，构建后的索引还是有大量的英文（虽然喂进去的文本是纯中文的）
-
-
+- **中文提示词的设计**（通过手工调整Manual Tuning的方式）
+- **算力/时间开销**的问题（只保留100个和计算机科学最相关的词条，提供整体的解决方案，系统做简单的演示）
 
 #### 3.2 知识图谱的可视化
 
@@ -120,13 +141,15 @@
 
 - 渲染性能，前端用的图可视化库最多支持多少节点和边？因为100个词条涉及到的实体和关系也是非常多了
 
+> 基于以上问题，决定直接使用Neo4J自带的Web端来可视化图谱，具体效果见http://mini.fffu.fun:7474
 
 
-目前已经遇到的问题：
 
-- ⚠️⚠️⚠️graphrag构建的结果导进Neo4J还有些问题，主要是因为随着graphrag的更新，其构建的parquet产物文件已经改变了（包括每个文件的结构，以及有哪些文件），这导致网上很多的代码都不可用，或者可以运行，但构建出来的图谱有不对的地方。graphrag官方对其构建输出的解释文档在[Outputs - GraphRAG](https://microsoft.github.io/graphrag/index/outputs/)
+遇到的其他问题：
 
+- graphrag构建的结果导进Neo4J还有些问题，主要是因为随着graphrag的更新，其构建的parquet产物文件已经改变了（包括每个文件的结构，以及有哪些文件），这导致网上很多的代码都不可用，或者可以运行，但构建出来的图谱有不对的地方。graphrag官方对其构建输出的解释文档在[Outputs - GraphRAG](https://microsoft.github.io/graphrag/index/outputs/)
 
+> 阅读了GraphRAG的官方文档，重构了导入脚本，目前已经可以正常导入
 
 ---
 
@@ -134,13 +157,31 @@
 
 目前已经实现基础的问答功能，返回的数据格式如下：
 
-![image-20241216195523097](https://s2.loli.net/2024/12/16/5sJ2YZLOgGoyBi9.png)
+![image-20241223210104263](https://s2.loli.net/2024/12/23/39w6tMByRWU4sce.png)
 
-现在有一小一大两个问题：
+现在三个问题：
 
 - 小问题：我不清楚前端能否正确处理这里的加粗符号，例如\*\*数据结构和算法\*\*
-- 大问题：graphrag的回答有很多形如`[Data: 25]`，这实际上是在引用抽取出的实体。前端能否将其转换成可点击的一个链接（用正则表达式匹配），点击后发送请求到后端（给我Data的Id），然后弹出一个模态框展示这个实体的信息。
+
+- 中问题：目前后端关于聊天只有1个接口，就是传消息给回复。是否需要支持聊天持久化功能？不需要的话前端界面每次打开是空的，从新的聊天消息开始（这样我后端不用保存到MySQL）。是否需要支持不同对话功能？比如创建不同的对话，不同的消息属于不同的对话（做不做对话的持久化）
+
+- 大问题：graphrag的回答有很多形如`[Data: Entities (73)]`，这实际上是在引用抽取出的实体/关系。前端能否将其转换成可点击的一个链接（用正则表达式匹配），点击后发送请求到后端（给`type`和`id`），然后弹出一个模态框展示引用来源实体/关系的信息。这部分对于我的后端是很简单的，但我觉得前端实现有点难度。
+
+  ```http
+  # 查看引用来源
+  POST http://127.0.0.1:8010/api/reference
+  Content-Type: application/json
+  
+  {
+    "type": "entity",
+    "id": "73"
+  }
+  ```
 
 ---
 
 ### 5. 评估优化
+
+我想到的一些评估方案：
+
+- 评估引用的准确率

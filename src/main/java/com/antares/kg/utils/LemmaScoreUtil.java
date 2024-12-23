@@ -8,6 +8,7 @@ import cn.hutool.json.JSONUtil;
 import com.antares.kg.constant.CrawlerConstants;
 import lombok.extern.slf4j.Slf4j;
 
+//Todo: 重构成调用agicto的接口，而不是调用ollama
 @Slf4j
 public class LemmaScoreUtil {
     public static int scoreLemmaBySummary(String input) {
