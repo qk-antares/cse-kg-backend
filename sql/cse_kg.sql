@@ -1,6 +1,6 @@
 create database cse_kg;
 
-create table `crawl_task` (
+create table if not exists  `crawl_task` (
     `id` bigint not null auto_increment comment '爬取任务id',
     `root_url` varchar(512) not null comment '根词条url',
     `root_name` varchar(128) not null comment '根词条名称',
@@ -15,7 +15,7 @@ create table `crawl_task` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='爬取任务';
 
-create table `lemma` (
+create table if not exists  `lemma` (
     `id` bigint not null auto_increment comment '词条id',
     `task_id` bigint not null comment '任务id',
     `depth` int not null comment '词条所处任务的深度',
@@ -34,7 +34,7 @@ create table `lemma` (
     KEY `idx_url` (`url`) # 查询词条是否已经爬取过了
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='百度百科词条';
 
-create table `lemma_link` (
+create table if not exists  `lemma_link` (
     `id` bigint not null auto_increment comment '关系id',
     `from_lemma_id` bigint not null comment '父词条id',
     `to_lemma_id` bigint not null comment '被引用词条id',
@@ -44,7 +44,7 @@ create table `lemma_link` (
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='词条关系表';
 
-create table `chat` (
+create table if not exists  `chat` (
     `id` bigint not null auto_increment comment '对话id',
     `msg` text not null comment '用户输入的提问',
     `type` varchar(32) not null default 'local' comment '提问类型（local，global）',
@@ -55,6 +55,28 @@ create table `chat` (
     `is_delete` tinyint NOT NULL DEFAULT 0 COMMENT '是否删除',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='聊天对话表';
+
+create table if not exists `entity` (
+    `id` bigint not null comment '实体id，对应human_readable_id',
+    `title` varchar(512) comment '实体标题',
+    `type` varchar(128) comment '实体类型',
+    `description` text comment '实体描述',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='实体表';
+
+CREATE DATABASE IF NOT EXISTS SoftwareRelations;
+
+USE SoftwareRelations;
+
+create table if not exists `relationship` (
+    `id` bigint not null comment '关系id，对应human_readable_id',
+    `source` varchar(512) comment '源实体标题',
+    `target` varchar(512) comment '目标实体标题',
+    `description` text comment '关系描述',
+    `weight` float comment '关系的重要性权重',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='关系表';
+
 
 
 # 以下是开发中测试的SQL语句，不用执行

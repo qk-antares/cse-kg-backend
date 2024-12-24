@@ -6,7 +6,7 @@
 
 1. 将仓库中`application-example.yml`拷贝一份为`application.yml`（不要将`application.yml`直接上传到github仓库，因为其中有密码等敏感数据，我已经在.gitignore中设置了忽略`application.yml`）
 
-2. 配置`application.yml`中的`spring.datasource`和`minio`，以及`cse-kg.neo4j`，密码在微信群中（minio、mysql和neo4j的密码是一样的）。
+2. 配置`application.yml`中的`spring.datasource`和`minio`，密码在微信群中（minio、mysql的密码是一样的）。
 
    > 非机器学习项目小组成员的运行`sql`目录下的脚本建表
 
