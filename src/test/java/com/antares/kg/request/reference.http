@@ -1,0 +1,8 @@
+# 获取实体信息
+POST http://127.0.0.1:8010/api/chat/reference
+Content-Type: application/json
+
+{
+  "id": 200,
+  "type": "relationship"
+}

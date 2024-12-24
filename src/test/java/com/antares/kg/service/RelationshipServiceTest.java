@@ -5,8 +5,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.antares.kg.mapper.RelationshipMapper;
-import com.antares.kg.model.entity.Entity;
-import com.antares.kg.model.entity.Relationship;
+import com.antares.kg.model.dto.chat.Relationship;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

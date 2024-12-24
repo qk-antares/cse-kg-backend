@@ -13,7 +13,7 @@ public class ChatServiceTest {
     private ChatService chatService;
 
     @Test
-    public void test() {
+    public void chat() {
         ChatReq chatReq = new ChatReq();
         chatReq.setType("local");
         chatReq.setMsg("计算机科学专业需要学习哪些课程?");

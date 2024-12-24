@@ -39,6 +39,10 @@ public class R<T> implements Serializable {
 		return new R<>(HttpCodeEnum.code, HttpCodeEnum.msg);
 	}
 
+	public static R<Void> error(HttpCodeEnum HttpCodeEnum, String msg) {
+		return new R<>(HttpCodeEnum.code, msg);
+	}
+
 	public static R<Void> error(int code, String msg) {
 		return new R<>(code, msg);
 	}

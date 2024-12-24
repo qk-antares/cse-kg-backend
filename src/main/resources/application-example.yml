@@ -28,10 +28,6 @@ minio:
   access-key: cse_kg
   secret-key:
 cse-kg:
-  neo4j:
-    uri: bolt://mini.fffu.fun:7687
-    username: neo4j
-    password:
   graph-rag:
     env-path: D:/anaconda3/envs/graphrag
     root-path: E:/Workplace/MyPro/cse-kg-backend/src/main/resources/ragtest
