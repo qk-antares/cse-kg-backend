@@ -4,6 +4,6 @@ POST http://127.0.0.1:8010/api/chat
 Content-Type: application/json
 
 {
-  "msg": "计算机科学专业需要学习哪些课程?",
+  "msg": "你知道有哪些计算机科学领域的名人或科学家，介绍下他们的贡献?",
   "type": "local"
 }
